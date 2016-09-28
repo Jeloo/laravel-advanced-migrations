@@ -9,6 +9,10 @@ class TableCreationGenerator
      */
     private $fields;
 
+    protected $map = [
+
+    ];
+
     public function __construct(array $fields)
     {
         $this->fields = $fields;
