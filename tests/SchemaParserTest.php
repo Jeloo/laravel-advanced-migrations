@@ -5,7 +5,7 @@ use Jeloo\LaraMigrations\TableCreationGenerator;
 class SchemaParserTest extends PHPUnit_Framework_TestCase
 {
 
-    public function testParse()
+    public function testParsesSchema()
     {
         $schemaParser = new \Jeloo\LaraMigrations\SchemaParser([
             ['id', 'integer', 'unsigned', 'nullable'],
@@ -18,6 +18,17 @@ class SchemaParserTest extends PHPUnit_Framework_TestCase
         ]);
     }
 
+    public function testGuessesTypes()
+    {
+        $schemaParser = new \Jeloo\LaraMigrations\SchemaParser([
+            ['id', 'unsigned', 'nullable'],
+            ['email', 'nullable', 'unique'],
+        ]);
 
+        $this->assertEquals($schemaParser->parse(), [
+            ['name' => 'id', 'type' => 'integer', 'properties' => ['unsigned', 'nullable']],
+            ['name' => 'email', 'type' => 'string', 'properties' => ['nullable', 'unique']]
+        ]);
+    }
 
 }

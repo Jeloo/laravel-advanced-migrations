@@ -21,7 +21,7 @@ class SchemaParser
      * @var array
      */
     private $possibleColTypes = [
-        'integer' => ['id', '+_id'],
+        'integer' => ['id', '.+_id'],
         'string'  => ['email', 'name', 'title'],
         'text'    => ['description', 'path']
     ];
@@ -81,7 +81,6 @@ class SchemaParser
     {
         foreach ($this->possibleColTypes as $type => $names) {
             $regex = sprintf('/^(%s)/', implode('|', $this->possibleColTypes[$type]));
-            var_dump($regex, $name);
             if (preg_match($regex, $name)) {
                 return $type;
             }
