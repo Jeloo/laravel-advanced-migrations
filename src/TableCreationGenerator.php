@@ -2,20 +2,16 @@
 
 namespace Jeloo\LaraMigrations;
 
-class TableCreationGenerator
+class TableCreationGenerator implements GeneratorInterface
 {
     /**
      * @var array
      */
-    private $fields;
+    private $schema;
 
-    protected $map = [
-
-    ];
-
-    public function __construct(array $fields)
+    public function __construct($table, array $schema)
     {
-        $this->fields = $fields;
+        $this->schema = $schema;
     }
 
     /**
@@ -23,7 +19,28 @@ class TableCreationGenerator
      */
     public function generateUp()
     {
+        $snippet = '';
 
+        foreach ($this->schema as $col) {
+            $snippet .= sprintf('$table->%s(\'%s\')', $col['type'], $col['name']);
+
+            if (! empty($col['properties'])) {
+                $snippet .= implode('->', $this->chainedStatements()).PHP_EOL;
+                $snippet .= ';'.PHP_EOL;
+
+                //@todo handle chained statements
+            }
+        }
+    }
+
+    protected function separateCallStatements()
+    {
+        //@todo implement
+    }
+
+    protected function chainedStatements()
+    {
+        //@todo implement
     }
 
     /**
@@ -31,7 +48,7 @@ class TableCreationGenerator
      */
     public function generateDown()
     {
-
+        return sprintf('$table->dropTable(%s);', 'table_name');
     }
 
 }

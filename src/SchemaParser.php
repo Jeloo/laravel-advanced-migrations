@@ -2,7 +2,7 @@
 
 namespace Jeloo\LaraMigrations;
 
-class SchemaParser
+class SchemaParser implements SchemaParserInterface
 {
 
     /**
