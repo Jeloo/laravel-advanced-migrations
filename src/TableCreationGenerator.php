@@ -2,7 +2,7 @@
 
 namespace Jeloo\LaraMigrations;
 
-class TableCreationGenerator implements GeneratorInterface
+class TableCreationGenerator extends AbstractGenerator
 {
     /**
      * @var array
