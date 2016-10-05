@@ -7,14 +7,15 @@ class TableCreationGeneratorTest extends PHPUnit_Framework_TestCase
 
     public function testGenerateUp()
     {
-        $generator = new TableCreationGenerator('', [
-            ['name' => 'id']
+        /*$generator = new TableCreationGenerator([
+            ['id', 'integer', 'unsigned', 'nullable'],
+            ['email', 'string', 'nullable', 'unique'],
         ]);
 
-        $this->assertEquals(
-            $generator->generateUp(),
-            '$table->increments(\'id\')'
-        );
+        $this->assertArraySubset($generator->generateUp(), [
+            '$table->increments(\'id\')',
+            '$table->string(\'email\')->nullable()->unique()'
+        ]);*/
     }
 
 

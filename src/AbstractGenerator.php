@@ -14,31 +14,20 @@ abstract class AbstractGenerator
     public function call($methodName)
     {
         $this->fillDefaults();
-        $this->output .= sprintf('{object}->%s({args})', $methodName);
+        $this->output .= sprintf('%object%->%s(%args%)', $methodName);
         return $this;
     }
 
     public function of($variableName)
     {
-        $pattern = '/\{object\}/';
+        $pattern = '/^%object%$/';
         $this->output = preg_replace($pattern, $variableName, $this->output);
         return $this;
     }
 
-    /**
-     * @param array|string $arguments
-     * @return $this
-     */
-    public function withArgs($arguments)
+    public function withArgs(array $arguments)
     {
-        $arguments = is_array($arguments) ? $arguments : [$arguments];
-
-        $pattern = '/\{args\}/';
-
-        $arguments = array_map(function ($arg) {
-            return '\''.$arg.'\'';
-        }, $arguments);
-
+        $pattern = '/^%args%$/';
         $this->output = preg_replace($pattern, implode(', ', $arguments), $this->output);
         return $this;
     }
@@ -46,7 +35,7 @@ abstract class AbstractGenerator
     public function callChain($methodName)
     {
         $this->fillDefaults();
-        $this->output .= sprintf('->%s({args})', $methodName);
+        $this->output .= sprintf('->%s(%args%)', $methodName);
         return $this;
     }
 

@@ -9,16 +9,6 @@ class TableCreationGenerator extends AbstractGenerator
      */
     private $schema;
 
-    /**
-     * @var array
-     */
-    private $meta = [
-        [
-            'pattern' => ['name' => 'id'],
-            'actions' => ['call' => 'increments', 'of' => '$table', 'withArgs' => 'id']
-        ]
-    ];
-
     public function __construct($table, array $schema)
     {
         $this->schema = $schema;
@@ -29,12 +19,28 @@ class TableCreationGenerator extends AbstractGenerator
      */
     public function generateUp()
     {
-        foreach ($this->schema as $column) {
-            $actions = $this->getActionsByColumnSchema($column);
-            $this->generateByActionsMeta($actions);
-        }
+        $snippet = '';
 
-        return $this->output;
+        foreach ($this->schema as $col) {
+            $snippet .= sprintf('$table->%s(\'%s\')', $col['type'], $col['name']);
+
+            if (! empty($col['properties'])) {
+                $snippet .= implode('->', $this->chainedStatements()).PHP_EOL;
+                $snippet .= ';'.PHP_EOL;
+
+                //@todo handle chained statements
+            }
+        }
+    }
+
+    protected function separateCallStatements()
+    {
+        //@todo implement
+    }
+
+    protected function chainedStatements()
+    {
+        //@todo implement
     }
 
     /**
@@ -43,38 +49,6 @@ class TableCreationGenerator extends AbstractGenerator
     public function generateDown()
     {
         return sprintf('$table->dropTable(%s);', 'table_name');
-    }
-
-    /**
-     * @param array $column
-     * @return array
-     */
-    private function getActionsByColumnSchema(array $column)
-    {
-        foreach ($this->meta as $m) {
-            if (! empty(array_intersect($column, $m['pattern']))) {
-                return $m['actions'];
-            }
-        }
-
-        return [];
-    }
-
-    /**
-     * @param array $actions
-     */
-    private function generateByActionsMeta(array $actions)
-    {
-        if (is_array(array_values($actions)[0])) {
-            // if array is not flat then generate code recursively
-            $this->generateByActionsMeta($actions);
-        } else {
-            // call methods from parent to generate code
-            foreach ($actions as $method => $arg) {
-                $this->$method($arg);
-            }
-        }
-
     }
 
 }
