@@ -1,6 +1,6 @@
 <?php
 
-use Jeloo\LaraMigrations\TableCreationGenerator;
+use Jeloo\LaraMigrations\MetaBasedGenerator;
 
 class SchemaParserTest extends PHPUnit_Framework_TestCase
 {

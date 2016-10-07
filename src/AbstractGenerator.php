@@ -11,14 +11,14 @@ abstract class AbstractGenerator
 
     abstract public function generateDown();
 
-    public function call($methodName)
+    protected function call($methodName)
     {
         $this->fillDefaults();
         $this->output .= sprintf('{object}->%s({args})', $methodName);
         return $this;
     }
 
-    public function of($variableName)
+    protected function of($variableName)
     {
         $pattern = '/\{object\}/';
         $this->output = preg_replace($pattern, $variableName, $this->output);
@@ -29,7 +29,7 @@ abstract class AbstractGenerator
      * @param array|string $arguments
      * @return $this
      */
-    public function withArgs($arguments)
+    protected function withArgs($arguments)
     {
         $arguments = is_array($arguments) ? $arguments : [$arguments];
 
@@ -43,23 +43,23 @@ abstract class AbstractGenerator
         return $this;
     }
 
-    public function callChain($methodName)
+    protected function callChain($methodName)
     {
         $this->fillDefaults();
         $this->output .= sprintf('->%s({args})', $methodName);
         return $this;
     }
 
-    final private function fillDefaults()
-    {
-        $this->withArgs([]);
-    }
-
-    final private function endStatement()
+    final protected function endStatement()
     {
         if ($this->output) {
             $this->output .= ';'.PHP_EOL;
         }
+    }
+
+    final private function fillDefaults()
+    {
+        $this->withArgs([]);
     }
 
     public function __destruct()
