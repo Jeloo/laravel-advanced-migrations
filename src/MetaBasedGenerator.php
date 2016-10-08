@@ -69,7 +69,9 @@ class MetaBasedGenerator extends AbstractGenerator
     {
         foreach ($this->schema as $column) {
             $actions = $this->getActionsByColumnSchema($column, $migrationMethod);
-            $this->generateByMeta($actions);
+            if (! empty($actions)) {
+                $this->generateByMeta($actions);
+            }
         }
     }
 

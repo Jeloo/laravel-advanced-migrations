@@ -29,7 +29,7 @@ class MetaBasedGeneratorTest extends PHPUnit_Framework_TestCase
 
         $this->assertEquals(
             $generator->generateDown(),
-            '$table->dropTable();'
+            '$table->dropTable();'.PHP_EOL
         );
     }
 

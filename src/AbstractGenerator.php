@@ -52,6 +52,8 @@ abstract class AbstractGenerator
 
     final protected function endStatement()
     {
+        $this->fillDefaults();
+
         if ($this->output) {
             $this->output .= ';'.PHP_EOL;
         }
@@ -60,11 +62,6 @@ abstract class AbstractGenerator
     final private function fillDefaults()
     {
         $this->withArgs([]);
-    }
-
-    public function __destruct()
-    {
-        $this->endStatement();
     }
 
 }
