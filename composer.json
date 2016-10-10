@@ -3,6 +3,7 @@
         "phpunit/phpunit": "^5.5"
     },
     "require": {
+        "illuminate/console": "^5.3"
     },
     "autoload": {
         "psr-4": {
