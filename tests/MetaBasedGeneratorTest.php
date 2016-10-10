@@ -8,21 +8,19 @@ class MetaBasedGeneratorTest extends PHPUnit_Framework_TestCase
     public function testGenerateUp()
     {
         $generator = new MetaBasedGenerator(
-            '',
             [['name' => 'id']],
             $this->provider()
         );
 
         $this->assertEquals(
             $generator->generateUp(),
-            '$table->increments(\'id\');'.PHP_EOL
+            '$table->increments(\'id\')->unsigned();'.PHP_EOL
         );
     }
 
     public function testGenerateDown()
     {
         $generator = new MetaBasedGenerator(
-            '',
             [['name' => 'id']],
             $this->provider()
         );
@@ -39,7 +37,12 @@ class MetaBasedGeneratorTest extends PHPUnit_Framework_TestCase
             'up' => [
                 [
                     'pattern' => ['name' => 'id'],
-                    'actions' => ['call' => 'increments', 'of' => '$table', 'withArgs' => 'id']
+                    'actions' => [
+                        'call' => 'increments',
+                        'of' => '$table',
+                        'withArgs' => 'id',
+                        'callChain' => 'unsigned',
+                    ]
                 ],
             ],
             'down' => [

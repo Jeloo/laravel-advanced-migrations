@@ -35,7 +35,7 @@ class SchemaParser implements SchemaParserInterface
     }
 
     /**
-     * @return array
+     * @{inheritdoc}
      */
     public function parse()
     {
@@ -50,7 +50,11 @@ class SchemaParser implements SchemaParserInterface
         }, $this->input);
     }
 
-    protected function getName($colSettings)
+    /**
+     * @param array $colSettings
+     * @return string
+     */
+    protected function getName(array $colSettings)
     {
         return $colSettings[0];
     }

@@ -21,7 +21,7 @@ class MetaBasedGenerator extends AbstractGenerator
      * @param array $meta
      * @throws \InvalidArgumentException
      */
-    public function __construct($table, array $schema, array $meta)
+    public function __construct(array $schema, array $meta)
     {
         $this->schema = $schema;
 
@@ -48,6 +48,10 @@ class MetaBasedGenerator extends AbstractGenerator
         return $this->generate('down');
     }
 
+    /**
+     * @param string $migrationMethod
+     * @return string - Complete output code
+     */
     protected function generate($migrationMethod = 'up')
     {
         $this->handleTable($migrationMethod);
@@ -56,6 +60,9 @@ class MetaBasedGenerator extends AbstractGenerator
         return $this->output;
     }
 
+    /**
+     * @param string $migrationMethod
+     */
     final private function handleTable($migrationMethod)
     {
         foreach ($this->meta[$migrationMethod] as $m) {
@@ -65,6 +72,9 @@ class MetaBasedGenerator extends AbstractGenerator
         }
     }
 
+    /**
+     * @param string $migrationMethod
+     */
     final private function handleColumns($migrationMethod)
     {
         foreach ($this->schema as $column) {
