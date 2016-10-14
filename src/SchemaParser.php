@@ -27,18 +27,12 @@ class SchemaParser implements SchemaParserInterface
     ];
 
     /**
-     * @param array $input
-     */
-    public function __construct(array $input)
-    {
-        $this->input = $input;
-    }
-
-    /**
      * @{inheritdoc}
      */
-    public function parse()
+    public function parse(array $input)
     {
+        $this->input = $input;
+
         return array_map(function ($colSettings) {
             $type = $this->parseType($colSettings);
 

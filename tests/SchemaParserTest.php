@@ -1,34 +1,38 @@
 <?php
 
-use Jeloo\LaraMigrations\MetaBasedGenerator;
-
 class SchemaParserTest extends PHPUnit_Framework_TestCase
 {
 
     public function testParsesSchema()
     {
-        $schemaParser = new \Jeloo\LaraMigrations\SchemaParser([
-            ['id', 'integer', 'unsigned', 'nullable'],
-            ['email', 'string', 'nullable', 'unique'],
-        ]);
+        $schemaParser = new \Jeloo\LaraMigrations\SchemaParser();
 
-        $this->assertEquals($schemaParser->parse(), [
-            ['name' => 'id', 'type' => 'integer', 'properties' => ['unsigned', 'nullable']],
-            ['name' => 'email', 'type' => 'string', 'properties' => ['nullable', 'unique']]
-        ]);
+        $this->assertEquals(
+            $schemaParser->parse([
+                ['id', 'integer', 'unsigned', 'nullable'],
+                ['email', 'string', 'nullable', 'unique'],
+            ]),
+            [
+                ['name' => 'id', 'type' => 'integer', 'properties' => ['unsigned', 'nullable']],
+                ['name' => 'email', 'type' => 'string', 'properties' => ['nullable', 'unique']]
+            ]
+        );
     }
 
     public function testGuessesTypes()
     {
-        $schemaParser = new \Jeloo\LaraMigrations\SchemaParser([
-            ['id', 'unsigned', 'nullable'],
-            ['email', 'nullable', 'unique'],
-        ]);
+        $schemaParser = new \Jeloo\LaraMigrations\SchemaParser();
 
-        $this->assertEquals($schemaParser->parse(), [
-            ['name' => 'id', 'type' => 'integer', 'properties' => ['unsigned', 'nullable']],
-            ['name' => 'email', 'type' => 'string', 'properties' => ['nullable', 'unique']]
-        ]);
+        $this->assertEquals(
+            $schemaParser->parse([
+                ['id', 'unsigned', 'nullable'],
+                ['email', 'nullable', 'unique'],
+            ]),
+            [
+                ['name' => 'id', 'type' => 'integer', 'properties' => ['unsigned', 'nullable']],
+                ['name' => 'email', 'type' => 'string', 'properties' => ['nullable', 'unique']]
+            ]
+        );
     }
 
 }
