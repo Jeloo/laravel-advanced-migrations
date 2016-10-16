@@ -9,7 +9,6 @@
     "autoload": {
         "psr-4": {
             "Jeloo\\LaraMigrations\\": "src/"
-        },
-        "files": ["tests/CommandTestCase.php"]
+        }
     }
 }
