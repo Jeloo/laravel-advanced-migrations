@@ -1,6 +1,8 @@
 <?php
 
-class SchemaParserTest extends PHPUnit_Framework_TestCase
+namespace Jeloo\LaraMigrations;
+
+class SchemaParserTest extends \PHPUnit_Framework_TestCase
 {
 
     public function testParsesSchema()

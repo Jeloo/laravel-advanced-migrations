@@ -1,5 +1,7 @@
 <?php
 
+namespace Jeloo\LaraMigrations;
+
 use Jeloo\LaraMigrations\MigrationNameParser as Parser;
 use PHPUnit_Framework_TestCase as TestCase;
 

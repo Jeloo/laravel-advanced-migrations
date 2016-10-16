@@ -1,8 +1,8 @@
 <?php
 
-use Jeloo\LaraMigrations\MetaBasedGenerator;
+namespace Jeloo\LaraMigrations;
 
-class MetaBasedGeneratorTest extends PHPUnit_Framework_TestCase
+class MetaBasedGeneratorTest extends \PHPUnit_Framework_TestCase
 {
 
     public function testGenerateUp()

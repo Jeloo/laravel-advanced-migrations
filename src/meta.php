@@ -1,7 +1,20 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: jeloo
- * Date: 13.10.16
- * Time: 23:53
- */
+
+return [
+    'create' => [
+        'up' => [
+            [
+                'pattern' => ['name' => 'id'],
+                'actions' => [
+                    'call' => 'increments',
+                    'of' => '$table',
+                    'withArgs' => 'id',
+                    'callChain' => 'unsigned',
+                ]
+            ],
+        ],
+        'down' => [
+            ['call' => 'dropTable', 'of' => '$table']
+        ],
+    ],
+];

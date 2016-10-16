@@ -73,6 +73,16 @@ class MigrationNameParser
     }
 
     /**
+     * Returns the list of allowed verbs prefixes
+     *
+     * @return array
+     */
+    public function listAllowedVerbs()
+    {
+        return $this->allowedVerbs;
+    }
+
+    /**
      * Get string right position of the table name
      *
      * @return int
