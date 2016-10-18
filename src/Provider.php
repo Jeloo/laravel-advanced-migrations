@@ -19,7 +19,7 @@ class Provider extends ServiceProvider
 
     public function registerCommand()
     {
-        $this->app->singleton('command.make:migration@', function ($app) {
+        $this->app->singleton('command.make:migration@', function () {
             return new MigrationCommand();
         });
 
@@ -28,7 +28,7 @@ class Provider extends ServiceProvider
 
     public function registerConfig()
     {
-        $this->app->bind('make:migration@.config', function () {
+        $this->app->bind('make:migration@.meta', function () {
             return new Repository(require(__DIR__.'/meta.php'));
         });
     }
@@ -44,17 +44,26 @@ class Provider extends ServiceProvider
 
     public function registerSchemaParser()
     {
-        $this->app->bind(SchemaParserInterface::class, function () {
-            return new SchemaParser();
+        $this->app->bind('command.make:migration@.schemaParser', function ($app) {
+            /** @var MigrationCommand $command */
+            $command = $app['command.make:migration@'];
+            return new SchemaParser($command->prepareSchema());
         });
     }
 
     public function registerGenerator()
     {
-        $this->app->bind(AbstractGenerator::class, function () {
+        $this->app->bind(AbstractGenerator::class, function ($app) {
+            /** @var SchemaParserInterface $schemaParser */
+            $schemaParser = $app['command.make:migration@.schemaParser'];
+            /** @var Repository $meta */
+            $meta = $app['make:migration@.meta'];
+            /** @var MigrationCommand $command */
+            $command = $app['command.make:migration@'];
+
             return new MetaBasedGenerator(
-                [],
-                []
+                $schemaParser->parse(),
+                $meta->get($command->getMigrationVerb())
             );
         });
     }

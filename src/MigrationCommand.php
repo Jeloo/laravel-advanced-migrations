@@ -70,31 +70,19 @@ class MigrationCommand extends Command
     protected $nameParser;
 
     /**
-     * The parser of specified schema.
-     *
-     * @var SchemaParserInterface
-     */
-    protected $schemaParser;
-
-    /**
      * @param Container $app
      */
-    public function fire(Container $app, SchemaParserInterface $schemaParser)
+    public function fire(Container $app)
     {
         /** @var MigrationNameParser $nameParser */
         $this->nameParser = $app->make('make:migration@.nameParser');
-
         /** @var Repository $meta */
-        $this->meta = $app->make('make:migration@.config');
+        $this->meta = $app->make('make:migration@.meta');
 
         $this->table = $this->nameParser->parseTableName();
-
-        $this->verb = $this->nameParser->parseVerb();
-
-        $this->schemaParser = $schemaParser;
+        $this->verb  = $this->nameParser->parseVerb();
 
         $this->checkInput();
-        $this->parseSchema();
         $this->generate();
     }
 
@@ -117,11 +105,25 @@ class MigrationCommand extends Command
     }
 
     /**
+     * The action name of migration
+     * @return string
+     */
+    public function getMigrationVerb()
+    {
+        return $this->verb;
+    }
+
+    /**
+     * Returns array of definitions for schema parsing
+     * Column definition array per row
+     *
      * @return array
      */
-    protected function parseSchema()
+    public function prepareSchema()
     {
-        return $this->schemaParser->parse($this->splitColumns());
+        return array_map(function ($columnDefinition) {
+            return explode(self::COLUMN_DEFINITION_ATTRIBUTE_DELIMITER, $columnDefinition);
+        }, explode(self::COLUMN_DEFINITION_DELIMITER, $this->getColumns()));
     }
 
     protected function generate()
@@ -141,19 +143,6 @@ class MigrationCommand extends Command
                 implode(' or ', $this->nameParser->listAllowedVerbs())
             ));
         }
-    }
-
-    /**
-     * Returns array of definitions for schema parsing
-     * Column definition array per row
-     *
-     * @return array
-     */
-    private function splitColumns()
-    {
-        return array_map(function ($columnDefinition) {
-            return explode(self::COLUMN_DEFINITION_ATTRIBUTE_DELIMITER, $columnDefinition);
-        }, explode(self::COLUMN_DEFINITION_DELIMITER, $this->getColumns()));
     }
 
 }

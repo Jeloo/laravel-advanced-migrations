@@ -2,6 +2,8 @@
 
 namespace Jeloo\LaraMigrations;
 
+use Illuminate\Config\Repository;
+
 class MetaBasedGeneratorTest extends \PHPUnit_Framework_TestCase
 {
 
@@ -33,7 +35,7 @@ class MetaBasedGeneratorTest extends \PHPUnit_Framework_TestCase
 
     private function provider()
     {
-        return [
+        return new Repository([
             'up' => [
                 [
                     'pattern' => ['name' => 'id'],
@@ -48,7 +50,7 @@ class MetaBasedGeneratorTest extends \PHPUnit_Framework_TestCase
             'down' => [
                 ['call' => 'dropTable', 'of' => '$table']
             ],
-        ];
+        ]);
     }
 
 }

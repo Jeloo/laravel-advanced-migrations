@@ -2,6 +2,8 @@
 
 namespace Jeloo\LaraMigrations;
 
+use Illuminate\Contracts\Config\Repository as Meta;
+
 class MetaBasedGenerator extends AbstractGenerator
 {
     /**
@@ -10,7 +12,7 @@ class MetaBasedGenerator extends AbstractGenerator
     private $schema;
 
     /**
-     * @var array
+     * @var Meta
      */
     private $meta;
 
@@ -21,11 +23,11 @@ class MetaBasedGenerator extends AbstractGenerator
      * @param array $meta
      * @throws \InvalidArgumentException
      */
-    public function __construct(array $schema, array $meta)
+    public function __construct(array $schema, Meta $meta)
     {
         $this->schema = $schema;
 
-        if (! array_key_exists('up', $meta) || ! array_key_exists('down', $meta)) {
+        if (! $meta->has('up') || ! $meta->has('down')) {
             throw new \InvalidArgumentException('Meta must contain both [up] and [down] sub arrays');
         }
 

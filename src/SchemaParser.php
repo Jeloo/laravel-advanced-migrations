@@ -26,13 +26,16 @@ class SchemaParser implements SchemaParserInterface
         'text'    => ['description', 'path']
     ];
 
+    public function __construct(array $input)
+    {
+        $this->input = $input;
+    }
+
     /**
      * @{inheritdoc}
      */
-    public function parse(array $input)
+    public function parse()
     {
-        $this->input = $input;
-
         return array_map(function ($colSettings) {
             $type = $this->parseType($colSettings);
 
