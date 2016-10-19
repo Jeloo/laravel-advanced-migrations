@@ -17,6 +17,11 @@ class MetaBasedGenerator extends AbstractGenerator
     private $meta;
 
     /**
+     * @var array
+     */
+    private $placeholdersExclude = ['id'];
+
+    /**
      * MetaGenerator constructor.
      * @param $table
      * @param array $schema
@@ -58,7 +63,6 @@ class MetaBasedGenerator extends AbstractGenerator
     {
         $this->handleTable($migrationMethod);
         $this->handleColumns($migrationMethod);
-        $this->endStatement();
         return $this->output;
     }
 
@@ -80,12 +84,12 @@ class MetaBasedGenerator extends AbstractGenerator
     final private function handleColumns($migrationMethod)
     {
         foreach ($this->schema as $column) {
-            $patternActions = $this->getActionsByColumnSchema($column, $this->meta[$migrationMethod]);
-            $placeholderActions = $this->getActionsFillingPlaceholders($column, $this->meta[$migrationMethod]);
-            $actions = array_merge($patternActions, $placeholderActions);
+            $patternExpressions = $this->getExpressionsByColumn($column, $this->meta[$migrationMethod]);
+            $placeholderExpressions = $this->getExpressionsForPlaceholders($column, $this->meta[$migrationMethod]);
+            $expressions = array_merge($patternExpressions, $placeholderExpressions);
 
-            if (! empty($actions)) {
-                $this->generateByMeta($actions);
+            if (! empty($expressions)) {
+                $this->generateByMeta($expressions);
             }
         }
     }
@@ -94,7 +98,7 @@ class MetaBasedGenerator extends AbstractGenerator
      * @param array $column
      * @return array
      */
-    final private function getActionsByColumnSchema(array $column, array $meta)
+    final private function getExpressionsByColumn(array $column, array $meta)
     {
         foreach ($meta as $m) {
             if (
@@ -108,15 +112,40 @@ class MetaBasedGenerator extends AbstractGenerator
         return [];
     }
 
-    final private function getActionsFillingPlaceholders(array $columns, array $meta)
+    /**
+     * @param array $column
+     * @param array $metaRow
+     * @return array
+     */
+    final private function getExpressionsForPlaceholders(array $column, array $meta)
     {
-        $actionsWithPlaceholders = array_filter($meta, function ($actionPredicate) {
-            return in_array(preg_replace('/[{}]/', '', $actionPredicate), ['name', 'type']);
-        });
+        $result = [];
 
-        return array_map(function ($col) use ($actionsWithPlaceholders) {
-            //@todo fill actions with placeholders
-        }, $columns);
+        if (in_array($column['name'], $this->placeholdersExclude)) {
+            return [];
+        }
+
+        foreach ($meta as $m) {
+            // pattern expressions can not have placeholders
+            //dd($expressions, array_key_exists('pattern', $expressions));
+            if (array_key_exists('pattern', $m) || ! array_key_exists('actions', $m)) {
+                continue;
+            }
+
+            // replace placeholders to real column attributes
+            $expressions = array_intersect_key(array_flip($m['actions']), $column);
+            // sort in order to combine
+            asort($expressions);
+            asort($column);
+
+            $replaced = array_combine($expressions, $column);
+            // restore regular actions (which are not placeholders)
+            $replaced = array_merge($m['actions'], $replaced);
+
+            array_push($result, $replaced);
+        }
+
+        return $result;
     }
 
     /**
@@ -126,12 +155,14 @@ class MetaBasedGenerator extends AbstractGenerator
     {
         if (is_array(array_values($instructions)[0])) {
             // if array is not flat then generate code recursively
-            $this->generateByMeta($instructions);
+            $this->generateByMeta($instructions[0]);
         } else {
             // call methods from parent to generate code
             foreach ($instructions as $method => $arg) {
                 $this->$method($arg);
             }
+
+            $this->endStatement();
         }
 
     }

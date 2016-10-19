@@ -15,7 +15,7 @@ return [
             ],
             [
                 'actions' => [
-                    'call' => '{type}',
+                    'call' => 'type',
                     'of' => '$table'
                 ],
             ]
