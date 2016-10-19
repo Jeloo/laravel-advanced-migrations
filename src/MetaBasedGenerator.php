@@ -80,7 +80,10 @@ class MetaBasedGenerator extends AbstractGenerator
     final private function handleColumns($migrationMethod)
     {
         foreach ($this->schema as $column) {
-            $actions = $this->getActionsByColumnSchema($column, $migrationMethod);
+            $patternActions = $this->getActionsByColumnSchema($column, $this->meta[$migrationMethod]);
+            $placeholderActions = $this->getActionsFillingPlaceholders($column, $this->meta[$migrationMethod]);
+            $actions = array_merge($patternActions, $placeholderActions);
+
             if (! empty($actions)) {
                 $this->generateByMeta($actions);
             }
@@ -91,9 +94,9 @@ class MetaBasedGenerator extends AbstractGenerator
      * @param array $column
      * @return array
      */
-    final private function getActionsByColumnSchema(array $column, $migrationMethod = 'up')
+    final private function getActionsByColumnSchema(array $column, array $meta)
     {
-        foreach ($this->meta[$migrationMethod] as $m) {
+        foreach ($meta as $m) {
             if (
                 array_key_exists('pattern', $m) &&
                 ! empty(array_intersect($column, $m['pattern']))
@@ -103,6 +106,17 @@ class MetaBasedGenerator extends AbstractGenerator
         }
 
         return [];
+    }
+
+    final private function getActionsFillingPlaceholders(array $columns, array $meta)
+    {
+        $actionsWithPlaceholders = array_filter($meta, function ($actionPredicate) {
+            return in_array(preg_replace('/[{}]/', '', $actionPredicate), ['name', 'type']);
+        });
+
+        return array_map(function ($col) use ($actionsWithPlaceholders) {
+            //@todo fill actions with placeholders
+        }, $columns);
     }
 
     /**

@@ -11,12 +11,40 @@ return [
                     'call' => 'increments',
                     'of' => '$table',
                     'withArgs' => 'id',
-                    'callChain' => 'unsigned',
                 ]
             ],
+            [
+                'actions' => [
+                    'call' => '{type}',
+                    'of' => '$table'
+                ],
+            ]
         ],
         'down' => [
             ['call' => 'dropTable', 'of' => '$table']
+        ]
+    ],
+    'add' => [
+        'up' => [
+            'pattern' => ['name' => '.+_id'],
+            'actions' => [
+                [
+                    'call' => 'foreign',
+                    'of' => '$table',
+                    'withArgs' => '{column}',
+                ],
+                [
+                    'callChain' => 'references',
+                    'withArgs' => 'id',
+                ],
+                [
+                    'callChain' => 'on',
+                    'withArgs' => '{parent table}',
+                ]
+            ]
         ],
+        'down' => [
+            //@todo fill [down] meta
+        ]
     ],
 ];
