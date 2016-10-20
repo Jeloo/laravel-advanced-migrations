@@ -40,7 +40,7 @@ class MetaBasedGeneratorTest extends \PHPUnit_Framework_TestCase
             'up' => [
                 [
                     'pattern' => ['name' => 'id'],
-                    'actions' => [
+                    'expressions' => [
                         'call' => 'increments',
                         'of' => '$table',
                         'withArgs' => 'id',
@@ -48,10 +48,10 @@ class MetaBasedGeneratorTest extends \PHPUnit_Framework_TestCase
                     ]
                 ],
                 [
-                    'actions' => [
-                        'call' => 'type',
+                    'expressions' => [
+                        'call' => '{type}',
                         'of' => '$table',
-                        'withArgs' => 'name'
+                        'withArgs' => '{name}'
                     ],
                 ]
             ],

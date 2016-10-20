@@ -7,15 +7,15 @@ return [
         'up' => [
             [
                 'pattern' => ['name' => 'id'],
-                'actions' => [
+                'expressions' => [
                     'call' => 'increments',
                     'of' => '$table',
                     'withArgs' => 'id',
                 ]
             ],
             [
-                'actions' => [
-                    'call' => 'type',
+                'expressions' => [
+                    'call' => '{type}',
                     'of' => '$table'
                 ],
             ]
@@ -27,7 +27,7 @@ return [
     'add' => [
         'up' => [
             'pattern' => ['name' => '.+_id'],
-            'actions' => [
+            'expressions' => [
                 [
                     'call' => 'foreign',
                     'of' => '$table',
