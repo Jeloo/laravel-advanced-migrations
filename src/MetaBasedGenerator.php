@@ -72,7 +72,7 @@ class MetaBasedGenerator extends AbstractGenerator
     final private function handleTable($migrationMethod)
     {
         foreach ($this->meta[$migrationMethod] as $m) {
-            if (! array_key_exists('actions', $m)) {
+            if (! array_key_exists('expressions', $m)) {
                 $this->generateByMeta($m);
             }
         }
@@ -105,7 +105,7 @@ class MetaBasedGenerator extends AbstractGenerator
                 array_key_exists('pattern', $m) &&
                 ! empty(array_intersect($column, $m['pattern']))
             ) {
-                return $m['actions'];
+                return $m['expressions'];
             }
         }
 
@@ -125,19 +125,19 @@ class MetaBasedGenerator extends AbstractGenerator
 
         return array_filter(array_map(function ($m) use ($column) {
             // pattern expressions can not have placeholders
-            if (array_key_exists('pattern', $m) || ! array_key_exists('actions', $m)) {
+            if (array_key_exists('pattern', $m) || ! array_key_exists('expressions', $m)) {
                 return;
             }
 
             // replace placeholders to real column attributes
-            $expressions = array_intersect_key(array_flip($m['actions']), $column);
+            $expressions = array_intersect_key(array_flip($m['expressions']), $column);
             // sort in order to combine
             asort($expressions);
             asort($column);
 
             $replaced = array_combine($expressions, $column);
-            // restore regular actions (which are not placeholders)
-            return array_merge($m['actions'], $replaced);
+            // restore regular expressions (which are not placeholders)
+            return array_merge($m['expressions'], $replaced);
         }, $meta));
     }
 
