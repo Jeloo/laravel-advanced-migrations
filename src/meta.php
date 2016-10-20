@@ -15,7 +15,7 @@ return [
             ],
             [
                 'expressions' => [
-                    'call' => 'type',
+                    'call' => '{type}',
                     'of' => '$table'
                 ],
             ]

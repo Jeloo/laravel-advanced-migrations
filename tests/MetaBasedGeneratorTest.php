@@ -49,9 +49,9 @@ class MetaBasedGeneratorTest extends \PHPUnit_Framework_TestCase
                 ],
                 [
                     'expressions' => [
-                        'call' => 'type',
+                        'call' => '{type}',
                         'of' => '$table',
-                        'withArgs' => 'name'
+                        'withArgs' => '{name}'
                     ],
                 ]
             ],

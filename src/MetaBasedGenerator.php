@@ -129,8 +129,10 @@ class MetaBasedGenerator extends AbstractGenerator
                 return;
             }
 
+            // remove brackets
+            $expressions = preg_replace('/[{}]/', '', $m['expressions']);
             // replace placeholders to real column attributes
-            $expressions = array_intersect_key(array_flip($m['expressions']), $column);
+            $expressions = array_intersect_key(array_flip($expressions), $column);
             // sort in order to combine
             asort($expressions);
             asort($column);
