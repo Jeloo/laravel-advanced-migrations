@@ -119,17 +119,14 @@ class MetaBasedGenerator extends AbstractGenerator
      */
     final private function getExpressionsForPlaceholders(array $column, array $meta)
     {
-        $result = [];
-
         if (in_array($column['name'], $this->placeholdersExclude)) {
             return [];
         }
 
-        foreach ($meta as $m) {
+        return array_filter(array_map(function ($m) use ($column) {
             // pattern expressions can not have placeholders
-            //dd($expressions, array_key_exists('pattern', $expressions));
             if (array_key_exists('pattern', $m) || ! array_key_exists('actions', $m)) {
-                continue;
+                return;
             }
 
             // replace placeholders to real column attributes
@@ -140,12 +137,8 @@ class MetaBasedGenerator extends AbstractGenerator
 
             $replaced = array_combine($expressions, $column);
             // restore regular actions (which are not placeholders)
-            $replaced = array_merge($m['actions'], $replaced);
-
-            array_push($result, $replaced);
-        }
-
-        return $result;
+            return array_merge($m['actions'], $replaced);
+        }, $meta));
     }
 
     /**
