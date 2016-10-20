@@ -129,7 +129,7 @@ class MetaBasedGenerator extends AbstractGenerator
                 return;
             }
 
-            // remove brackets
+            // remove braces
             $expressions = preg_replace('/[{}]/', '', $m['expressions']);
             // replace placeholders to real column attributes
             $expressions = array_intersect_key(array_flip($expressions), $column);
