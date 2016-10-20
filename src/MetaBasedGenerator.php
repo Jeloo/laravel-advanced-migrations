@@ -134,8 +134,8 @@ class MetaBasedGenerator extends AbstractGenerator
             // replace placeholders to real column attributes
             $expressions = array_intersect_key(array_flip($expressions), $column);
             // sort in order to combine
-            asort($expressions);
-            asort($column);
+            ksort($expressions);
+            ksort($column);
 
             $replaced = array_combine($expressions, $column);
             // restore regular expressions (which are not placeholders)

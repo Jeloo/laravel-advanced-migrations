@@ -34,6 +34,19 @@ class MetaBasedGeneratorTest extends \PHPUnit_Framework_TestCase
         );
     }
 
+    public function testDoesNotReplacesColumnNamesAsPlaceholders()
+    {
+        $generator = new MetaBasedGenerator(
+            [['name' => 'name', 'type' => 'string']],
+            $this->provider()
+        );
+
+        $this->assertEquals(
+            '$table->string(\'name\');'.PHP_EOL,
+            $generator->generateUp()
+        );
+    }
+
     private function provider()
     {
         return new Repository([
