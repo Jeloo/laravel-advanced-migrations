@@ -31,7 +31,7 @@ return [
                 [
                     'call' => 'foreign',
                     'of' => '$table',
-                    'withArgs' => '{column}',
+                    'withArgs' => '{name}',
                 ],
                 [
                     'callChain' => 'references',
@@ -39,7 +39,7 @@ return [
                 ],
                 [
                     'callChain' => 'on',
-                    'withArgs' => '{parent table}',
+                    'withArgs' => '{belongsTo}',
                 ]
             ]
         ],

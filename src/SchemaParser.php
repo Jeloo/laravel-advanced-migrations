@@ -2,6 +2,9 @@
 
 namespace Jeloo\LaraMigrations;
 
+use Illuminate\Support\Str;
+use Illuminate\Database\Schema\Builder;
+
 class SchemaParser implements SchemaParserInterface
 {
 
@@ -9,6 +12,11 @@ class SchemaParser implements SchemaParserInterface
      * @var array
      */
     private $input;
+
+    /**
+     * @var Builder
+     */
+    private $schemaBuilder;
 
     /**
      * @var array
@@ -26,9 +34,10 @@ class SchemaParser implements SchemaParserInterface
         'text'    => ['description', 'path']
     ];
 
-    public function __construct(array $input)
+    public function __construct(array $input, Builder $schema)
     {
         $this->input = $input;
+        $this->schemaBuilder = $schema;
     }
 
     /**
@@ -39,11 +48,21 @@ class SchemaParser implements SchemaParserInterface
         return array_map(function ($colSettings) {
             $type = $this->parseType($colSettings);
 
-            return [
+            $schema = [
                 'name'       => $this->getName($colSettings),
                 'type'       => $type,
                 'properties' => $this->parseProperties($colSettings, $type)
             ];
+
+            if (
+                array_search('foreign', $schema['properties']) !== false &&
+                $relatedTable = $this->guessRelatedTableByName($colSettings)
+            ) {
+                $schema['belongsTo'] = $relatedTable;
+            }
+
+            return $schema;
+
         }, $this->input);
     }
 
@@ -97,11 +116,31 @@ class SchemaParser implements SchemaParserInterface
      */
     protected function parseProperties(array $colSettings, $type)
     {
+        //exclude name column
+        $result = array_except($colSettings, 0);
         $typeIndex = array_search($type, $colSettings);
 
-        unset($colSettings[0], $colSettings[$typeIndex]);
+        $result = $typeIndex ? array_except($result, $typeIndex) : $result;
+        // add foreign attribute if column looks like foreign column
+        if (Str::endsWith($this->getName($colSettings), '_id')) {
+           $result = array_merge($result, ['foreign', 'unsigned', 'nullable']);
+        }
 
-        return array_values($colSettings);
+        return array_values($result);
+    }
+
+    /**
+     * @param array $colSettings
+     * @return bool|string
+     */
+    protected function guessRelatedTableByName(array $colSettings)
+    {
+        if (Str::endsWith($this->getName($colSettings), '_id')) {
+            $table = str_replace('_id', '', $this->getName($colSettings));
+            return $this->schemaBuilder->hasTable($table) ? $table : Str::plural($table);
+        }
+
+        return false;
     }
 
 }
