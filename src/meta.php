@@ -26,7 +26,7 @@ return [
     ],
     'add' => [
         'up' => [
-            'pattern' => ['name' => '.+_id'],
+            'pattern' => ['name' => '_id'],
             'expressions' => [
                 [
                     'call' => 'foreign',

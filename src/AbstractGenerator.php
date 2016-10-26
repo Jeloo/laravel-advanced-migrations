@@ -46,7 +46,7 @@ abstract class AbstractGenerator
     protected function callChain($methodName)
     {
         $this->fillDefaults();
-        $this->output .= sprintf('->%s({args})', $methodName);
+        $this->output .= sprintf("->%s({args})", $methodName);
         return $this;
     }
 

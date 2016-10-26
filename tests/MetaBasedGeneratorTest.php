@@ -10,14 +10,20 @@ class MetaBasedGeneratorTest extends \PHPUnit_Framework_TestCase
     public function testGenerateUp()
     {
         $generator = new MetaBasedGenerator(
-            [['name' => 'id'], ['name' => 'title', 'type' => 'string']],
+            [
+                ['name' => 'id'],
+                ['name' => 'title', 'type' => 'string'],
+                ['name' => 'category_id', 'type' => 'integer', 'belongsTo' => 'categories']
+            ],
             $this->provider()
         );
 
         $this->assertEquals(
-            $generator->generateUp(),
-            '$table->increments(\'id\')->unsigned();'.PHP_EOL.
-            '$table->string(\'title\');'.PHP_EOL
+            '$table->increments(\'id\');'.PHP_EOL.
+            '$table->string(\'title\');'.PHP_EOL.
+            '$table->integer(\'category_id\');'.PHP_EOL.
+            '$table->foreign(\'category_id\')->references(\'id\')->on(\'categories\');'.PHP_EOL,
+            $generator->generateUp()
         );
     }
 
@@ -29,8 +35,8 @@ class MetaBasedGeneratorTest extends \PHPUnit_Framework_TestCase
         );
 
         $this->assertEquals(
-            $generator->generateDown(),
-            '$table->dropTable();'.PHP_EOL
+            '$table->dropTable();'.PHP_EOL,
+            $generator->generateDown()
         );
     }
 
@@ -57,19 +63,40 @@ class MetaBasedGeneratorTest extends \PHPUnit_Framework_TestCase
                         'call' => 'increments',
                         'of' => '$table',
                         'withArgs' => 'id',
-                        'callChain' => 'unsigned',
-                    ]
+                        'end'
+                    ],
                 ],
                 [
+                    'pattern' => ['name' => '/^(?!id)/'],
                     'expressions' => [
                         'call' => '{type}',
                         'of' => '$table',
-                        'withArgs' => '{name}'
+                        'withArgs' => '{name}',
+                        'end'
                     ],
-                ]
+                ],
+                [
+                    'pattern' => ['name' => '/.+_id/'],
+                    'expressions' => [
+                        [
+                            'call' => 'foreign',
+                            'of' => '$table',
+                            'withArgs' => '{name}'
+                        ],
+                        [
+                            'callChain' => 'references',
+                            'withArgs' => 'id'
+                        ],
+                        [
+                            'callChain' => 'on',
+                            'withArgs' => '{belongsTo}',
+                            'end'
+                        ],
+                    ]
+                ],
             ],
             'down' => [
-                ['call' => 'dropTable', 'of' => '$table']
+                ['call' => 'dropTable', 'of' => '$table', 'end']
             ],
         ]);
     }

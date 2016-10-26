@@ -3,6 +3,7 @@
 namespace Jeloo\LaraMigrations;
 
 use Illuminate\Contracts\Config\Repository as Meta;
+use Illuminate\Support\Str;
 
 class MetaBasedGenerator extends AbstractGenerator
 {
@@ -15,11 +16,6 @@ class MetaBasedGenerator extends AbstractGenerator
      * @var Meta
      */
     private $meta;
-
-    /**
-     * @var array
-     */
-    private $placeholdersExclude = ['id'];
 
     /**
      * MetaGenerator constructor.
@@ -84,12 +80,12 @@ class MetaBasedGenerator extends AbstractGenerator
     final private function handleColumns($migrationMethod)
     {
         foreach ($this->schema as $column) {
-            $patternExpressions = $this->getExpressionsByColumn($column, $this->meta[$migrationMethod]);
-            $placeholderExpressions = $this->getExpressionsForPlaceholders($column, $this->meta[$migrationMethod]);
-            $expressions = array_merge($patternExpressions, $placeholderExpressions);
+            $expressions = $this->getExpressionsByColumn($column, $this->meta[$migrationMethod]);
 
             if (! empty($expressions)) {
-                $this->generateByMeta($expressions);
+                foreach ($expressions as $exp) {
+                    $this->generateByMeta($exp);
+                }
             }
         }
     }
@@ -100,16 +96,35 @@ class MetaBasedGenerator extends AbstractGenerator
      */
     final private function getExpressionsByColumn(array $column, array $meta)
     {
+        $expressions = [];
+
         foreach ($meta as $m) {
-            if (
-                array_key_exists('pattern', $m) &&
-                ! empty(array_intersect($column, $m['pattern']))
-            ) {
-                return $m['expressions'];
+            if (! array_key_exists('expressions', $m)) continue;
+
+            if (! array_key_exists('pattern', $m) || ! empty(array_intersect($column, $m['pattern']))) {
+                // expression is suitable for all columns
+                $this->addExpressions($expressions, $m, $column);
+                continue;
+            }
+
+            if (array_key_exists('name', $m['pattern']) && @preg_match($m['pattern']['name'], $column['name'])) {
+                $this->addExpressions($expressions, $m, $column);
             }
         }
 
-        return [];
+        return $expressions;
+    }
+
+    final private function addExpressions(array &$expressions, array $meta, array $column)
+    {
+        if (isset($meta['expressions'][0]) && is_array($meta['expressions'][0])) {
+            $nestedExpressions = array_map(function ($nestedExpressions) use ($column) {
+                return $this->replacePlaceholders($nestedExpressions, $column);
+            }, $meta['expressions']);
+            $expressions = array_merge($expressions, $nestedExpressions);
+        } else {
+            array_push($expressions, $this->replacePlaceholders($meta['expressions'], $column));
+        }
     }
 
     /**
@@ -117,30 +132,22 @@ class MetaBasedGenerator extends AbstractGenerator
      * @param array $metaRow
      * @return array
      */
-    final private function getExpressionsForPlaceholders(array $column, array $meta)
+    final private function replacePlaceholders(array $expressions, array $column)
     {
-        if (in_array($column['name'], $this->placeholdersExclude)) {
-            return [];
+        //dd($expressions, $column);
+
+        $replaced = [];
+
+        foreach ($expressions as $exp => $subject) {
+            if (Str::startsWith($subject, '{') && Str::endsWith($subject, '}')) {
+                $withoutBraces = preg_replace('/[{}]/', '', $subject);
+                $replaced[$exp] = array_key_exists($withoutBraces, $column) ? $column[$withoutBraces] : $subject;
+            } else {
+                $replaced[$exp] = $subject;
+            }
         }
 
-        return array_filter(array_map(function ($m) use ($column) {
-            // pattern expressions can not have placeholders
-            if (array_key_exists('pattern', $m) || ! array_key_exists('expressions', $m)) {
-                return;
-            }
-
-            // remove braces
-            $expressions = preg_replace('/[{}]/', '', $m['expressions']);
-            // replace placeholders to real column attributes
-            $expressions = array_intersect_key(array_flip($expressions), $column);
-            // sort in order to combine
-            ksort($expressions);
-            ksort($column);
-
-            $replaced = array_combine($expressions, $column);
-            // restore regular expressions (which are not placeholders)
-            return array_merge($m['expressions'], $replaced);
-        }, $meta));
+        return $replaced;
     }
 
     /**
@@ -154,10 +161,10 @@ class MetaBasedGenerator extends AbstractGenerator
         } else {
             // call methods from parent to generate code
             foreach ($instructions as $method => $arg) {
+                $method = $arg === 'end' ? 'endStatement' : $method;
                 $this->$method($arg);
             }
 
-            $this->endStatement();
         }
 
     }
