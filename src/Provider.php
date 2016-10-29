@@ -4,6 +4,7 @@ namespace Jeloo\LaraMigrations;
 
 use Illuminate\Config\Repository;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Database\Schema\Builder as SchemaBuilder;
 
 class Provider extends ServiceProvider
 {
@@ -47,7 +48,7 @@ class Provider extends ServiceProvider
         $this->app->bind('command.make:migration@.schemaParser', function ($app) {
             /** @var MigrationCommand $command */
             $command = $app['command.make:migration@'];
-            return new SchemaParser($command->prepareSchema());
+            return new SchemaParser($command->prepareSchema(), $app[SchemaBuilder::class]);
         });
     }
 
@@ -61,11 +62,15 @@ class Provider extends ServiceProvider
             /** @var MigrationCommand $command */
             $command = $app['command.make:migration@'];
 
+            $meta = new Repository($meta->get($command->getMigrationVerb()));
+
             return new MetaBasedGenerator(
                 $schemaParser->parse(),
-                $meta->get($command->getMigrationVerb())
+                $meta
             );
         });
+
+        $this->app->alias(AbstractGenerator::class, 'make:migration@.generator');
     }
 
 }

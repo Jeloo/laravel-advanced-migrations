@@ -6,6 +6,7 @@ use Illuminate\Config\Repository;
 use Illuminate\Console\Command;
 use Illuminate\Container\Container;
 use Illuminate\Contracts\Filesystem\Filesystem;
+use Illuminate\Support\Str;
 use Jeloo\LaraMigrations\MigrationNameParser;
 
 class MigrationCommand extends Command
@@ -70,17 +71,25 @@ class MigrationCommand extends Command
     protected $nameParser;
 
     /**
+     * @var AbstractGenerator
+     */
+    protected $generator;
+
+    /**
      * @param Container $app
      */
     public function fire(Container $app)
     {
         /** @var MigrationNameParser $nameParser */
         $this->nameParser = $app->make('make:migration@.nameParser');
-        /** @var Repository $meta */
-        $this->meta = $app->make('make:migration@.meta');
 
         $this->table = $this->nameParser->parseTableName();
         $this->verb  = $this->nameParser->parseVerb();
+
+        /** @var Repository $meta */
+        $this->meta = $app->make('make:migration@.meta');
+        /** @var AbstractGenerator generator */
+        $this->generator = $app->make('make:migration@.generator');
 
         $this->checkInput();
         $this->generate();
@@ -128,7 +137,13 @@ class MigrationCommand extends Command
 
     protected function generate()
     {
-        //@todo implement MetaBasedGenerator delegation
+        $class = ucfirst(Str::camel($this->getMigrationName()));
+        $code = file_get_contents(__DIR__.'/stubs/migration.stub');
+        $code = str_replace('{CLASS}', $class, $code);
+        $code = str_replace('// implement up', $this->generator->generateUp(), $code);
+        $code = str_replace('// implement down', $this->generator->generateDown(), $code);
+        $path = database_path().'/migrations/'.Str::snake($this->getMigrationName());
+        file_put_contents($path, $code);
     }
 
     /**

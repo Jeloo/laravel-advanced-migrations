@@ -27,7 +27,6 @@ class MetaBasedGenerator extends AbstractGenerator
     public function __construct(array $schema, Meta $meta)
     {
         $this->schema = $schema;
-
         if (! $meta->has('up') || ! $meta->has('down')) {
             throw new \InvalidArgumentException('Meta must contain both [up] and [down] sub arrays');
         }

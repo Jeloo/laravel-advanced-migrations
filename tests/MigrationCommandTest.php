@@ -12,7 +12,7 @@ class MigrationCommandTestCase extends TestCase
     {
         Artisan::call('make:migration@', [
             'name' => 'create_users',
-            'columns' => 'id:integer:unsigned:nullable,email:string:nullable:unique'
+            'columns' => 'id,email:nullable:unique'
         ]);
 
         $output = Artisan::output();
