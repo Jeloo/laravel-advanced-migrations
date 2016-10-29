@@ -11,17 +11,40 @@ return [
                     'call' => 'increments',
                     'of' => '$table',
                     'withArgs' => 'id',
+                    'end'
                 ]
             ],
             [
+                'pattern' => ['name' => '/^(?!id)/'],
                 'expressions' => [
                     'call' => '{type}',
-                    'of' => '$table'
+                    'of' => '$table',
+                    'withArgs' => '{name}',
+                    'end'
+                ],
+            ],
+            [
+            'pattern' => ['name' => '/.+_id/'],
+            'expressions' => [
+                [
+                    'call' => 'foreign',
+                    'of' => '$table',
+                    'withArgs' => '{name}'
+                ],
+                [
+                    'callChain' => 'references',
+                    'withArgs' => 'id'
+                ],
+                [
+                    'callChain' => 'on',
+                    'withArgs' => '{belongsTo}',
+                    'end'
                 ],
             ]
         ],
+        ],
         'down' => [
-            ['call' => 'dropTable', 'of' => '$table']
+            ['call' => 'dropTable', 'of' => '$table', 'end']
         ]
     ],
     'add' => [

@@ -100,11 +100,12 @@ class MetaBasedGenerator extends AbstractGenerator
         foreach ($meta as $m) {
             if (! array_key_exists('expressions', $m)) continue;
 
-            if (! array_key_exists('pattern', $m) || ! empty(array_intersect($column, $m['pattern']))) {
+            if (! array_key_exists('pattern', $m) || ! empty(array_intersect_assoc($column, $m['pattern']))) {
                 // expression is suitable for all columns
                 $this->addExpressions($expressions, $m, $column);
                 continue;
             }
+
 
             if (array_key_exists('name', $m['pattern']) && @preg_match($m['pattern']['name'], $column['name'])) {
                 $this->addExpressions($expressions, $m, $column);
