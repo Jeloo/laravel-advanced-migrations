@@ -25,7 +25,7 @@ class MigrationCommand extends Command
     /**
      * @var string
      */
-    protected $signature = 'make:migration@ {name} {columns?}';
+    protected $signature = 'make:migration@ {name} {columns}';
 
     /**
      * The console command description.
@@ -140,9 +140,10 @@ class MigrationCommand extends Command
         $class = ucfirst(Str::camel($this->getMigrationName()));
         $code = file_get_contents(__DIR__.'/stubs/migration.stub');
         $code = str_replace('{CLASS}', $class, $code);
+        $code = str_replace('DummyTable', $this->table, $code);
         $code = str_replace('// implement up', $this->generator->generateUp(), $code);
         $code = str_replace('// implement down', $this->generator->generateDown(), $code);
-        $path = database_path().'/migrations/'.Str::snake($this->getMigrationName());
+        $path = $this->getPath();
         file_put_contents($path, $code);
     }
 
@@ -158,6 +159,17 @@ class MigrationCommand extends Command
                 implode(' or ', $this->nameParser->listAllowedVerbs())
             ));
         }
+    }
+
+    /**
+     * @return string
+     */
+    protected function getPath()
+    {
+        $timestamp = date('Y_m_d_His');
+        $dir = database_path().'/migrations/';
+        $migrationName = Str::snake($this->getMigrationName());
+        return $dir.$timestamp.'_'.$migrationName.'.php';
     }
 
 }

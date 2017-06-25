@@ -15,12 +15,17 @@ return [
                 ]
             ],
             [
-                'pattern' => ['name' => '/^(?!id)/'],
+                'pattern' => ['name' => '/.+_id/'],
                 'expressions' => [
-                    'call' => '{type}',
-                    'of' => '$table',
-                    'withArgs' => '{name}',
-                    'end'
+                    [
+                        'call' => '{type}',
+                        'of' => '$table',
+                        'withArgs' => '{name}'
+                    ],
+                    [
+                        'callChain' => 'unsigned',
+                        'end'
+                    ]
                 ],
             ],
             [

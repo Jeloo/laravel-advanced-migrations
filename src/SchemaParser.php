@@ -3,7 +3,7 @@
 namespace Jeloo\LaraMigrations;
 
 use Illuminate\Support\Str;
-use Illuminate\Database\Schema\Builder;
+use Illuminate\Support\Facades\Schema;
 
 class SchemaParser implements SchemaParserInterface
 {
@@ -12,11 +12,6 @@ class SchemaParser implements SchemaParserInterface
      * @var array
      */
     private $input;
-
-    /**
-     * @var Builder
-     */
-    private $schemaBuilder;
 
     /**
      * @var array
@@ -34,10 +29,9 @@ class SchemaParser implements SchemaParserInterface
         'text'    => ['description', 'path']
     ];
 
-    public function __construct(array $input, Builder $schema)
+    public function __construct(array $input)
     {
         $this->input = $input;
-        $this->schemaBuilder = $schema;
     }
 
     /**
@@ -87,7 +81,7 @@ class SchemaParser implements SchemaParserInterface
         }
 
         if (! $type = $this->guessTypeByName($this->getName($colSettings))) {
-            throw new \Exception('Type is not specified and can not be identified automatically or invalid');
+            $type = 'string';
         }
 
         return $type;
@@ -137,7 +131,7 @@ class SchemaParser implements SchemaParserInterface
     {
         if (Str::endsWith($this->getName($colSettings), '_id')) {
             $table = str_replace('_id', '', $this->getName($colSettings));
-            return $this->schemaBuilder->hasTable($table) ? $table : Str::plural($table);
+            return Schema::hasTable($table) ? $table : Str::plural($table);
         }
 
         return false;

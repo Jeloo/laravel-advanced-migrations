@@ -18,10 +18,9 @@ class MetaBasedGenerator extends AbstractGenerator
     private $meta;
 
     /**
-     * MetaGenerator constructor.
-     * @param $table
-     * @param array $schema
-     * @param array $meta
+     * MetaBasedGenerator constructor.
+     * @param  array                     $schema
+     * @param  Meta                      $meta
      * @throws \InvalidArgumentException
      */
     public function __construct(array $schema, Meta $meta)
@@ -35,30 +34,32 @@ class MetaBasedGenerator extends AbstractGenerator
     }
 
     /**
-     * @return string - The code to fill migration [up] method
+     * @return string       The code to fill migration [up] method
      */
     public function generateUp()
     {
+        $this->setMigrationMethod('up');
         return $this->generate();
     }
 
     /**
-     * @return string - The code to fill migration [down] method
+     * @return string      The code to fill migration [down] method
      */
     public function generateDown()
     {
+        $this->setMigrationMethod('down');
         return $this->generate('down');
     }
 
     /**
-     * @param string $migrationMethod
-     * @return string - Complete output code
+     * @param  string $migrationMethod
+     * @return string                        Complete output code
      */
     protected function generate($migrationMethod = 'up')
     {
         $this->handleTable($migrationMethod);
         $this->handleColumns($migrationMethod);
-        return $this->output;
+        return $this->getOutput();
     }
 
     /**
@@ -81,7 +82,7 @@ class MetaBasedGenerator extends AbstractGenerator
         foreach ($this->schema as $column) {
             $expressions = $this->getExpressionsByColumn($column, $this->meta[$migrationMethod]);
 
-            if (! empty($expressions)) {
+            if (count($expressions)) {
                 foreach ($expressions as $exp) {
                     $this->generateByMeta($exp);
                 }
@@ -90,7 +91,8 @@ class MetaBasedGenerator extends AbstractGenerator
     }
 
     /**
-     * @param array $column
+     * @param  array $column
+     * @param  array $meta
      * @return array
      */
     final private function getExpressionsByColumn(array $column, array $meta)
@@ -115,6 +117,11 @@ class MetaBasedGenerator extends AbstractGenerator
         return $expressions;
     }
 
+    /**
+     * @param  array $expressions
+     * @param  array $meta
+     * @param  array $column
+     */
     final private function addExpressions(array &$expressions, array $meta, array $column)
     {
         if (isset($meta['expressions'][0]) && is_array($meta['expressions'][0])) {
@@ -128,8 +135,8 @@ class MetaBasedGenerator extends AbstractGenerator
     }
 
     /**
-     * @param array $column
-     * @param array $metaRow
+     * @param  array $expressions
+     * @param  array $column
      * @return array
      */
     final private function replacePlaceholders(array $expressions, array $column)
